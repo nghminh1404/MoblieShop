@@ -1,0 +1,221 @@
+﻿@page
+@model MobileShop.User.Hosted.Pages.CheckoutModel
+@using System.Net.Http.Headers
+@using MobileShop.Entity.Models
+@using MobileShop.Shared.Constants
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Checkout";
+
+    var _client = new HttpClient();
+    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+    _client.DefaultRequestHeaders.Accept.Add(contentType);
+    var ApiUri = $"{UrlConstant.ApiBaseUrl}/api/";
+    var option = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+    Account? account = null;
+
+    double subTotal = 0;
+    double total = 0;
+    double discount = 0;
+    double totalPay = 0;
+
+    var json = HttpContextAccessor.HttpContext!.Session.GetString("_login") ?? string.Empty;
+    var jsonCart = HttpContextAccessor.HttpContext!.Session.GetString("_cart") ?? string.Empty;
+
+    var erorr = HttpContextAccessor.HttpContext!.Session.GetString("_error") ?? string.Empty;
+    if (!string.IsNullOrEmpty(json))
+    {
+        account = JsonConvert.DeserializeObject<Account>(json);
+    }
+}
+<!-- Page Preloder -->
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+@if (!string.IsNullOrEmpty(json))
+{
+
+    <!-- Checkout Section Begin -->
+    <section class="checkout spad">
+        <div class="container">
+            <div class="checkout__form">
+                <h4>Billing Details </h4>
+                <p style="color:Tomato;">@Model.message</p>
+                @if (!string.IsNullOrEmpty(erorr))
+                {
+                    <p style="color:Tomato;">@erorr</p>
+                }
+                <form method="post">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="checkout__input">
+                                        <p>Name<span>*</span></p>
+                                        <input readonly type="text" name="fullname" value="@account.FullName">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="checkout__input">
+                                        <p>Address<span>*</span></p>
+                                        <input name="address" type="text" class="checkout__input__add" value="@account.Address">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="checkout__input">
+                                        <p>Payment type<span>*</span></p>
+                                        <select name="payment" value="" class="label">
+                                            @foreach (var item in Model.payments)
+                                            {
+                                                <option id="user" value="@item.PaymentId">@item.PaymentName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="checkout__input">
+                                        <p>Phone<span>*</span></p>
+                                        <input readonly type="text" name="phone" value="@account.Phone">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="checkout__input">
+                                        <p>Email<span>*</span></p>
+                                        <input readonly type="text" name="email" value="@account.Mail">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="checkout__order">
+                                <h4>Your Order</h4>
+                                <div class="checkout__order__products">Products <span>Total</span></div>
+                                <ul>
+                                    @{
+                                        foreach (var item in Model.orderDetails)
+                                        {
+                                            var response = await _client.GetAsync(ApiUri + $"product/get-product-id/{item.ProductId}");
+                                            var strData = await response.Content.ReadAsStringAsync();
+                                            var product = System.Text.Json.JsonSerializer.Deserialize<Product>(strData, option);
+
+                                            subTotal = item.Quantity * product.Price;
+                                            total = total + subTotal;
+
+                                            <li>@product.ProductName<span>@subTotal VND</span></li>
+                                        }
+                                        discount = @Model.coupon.DiscountPercent * total / 100;
+                                        totalPay = total - discount;
+
+                                    }
+                                </ul>
+                                <div class="checkout__order__subtotal">Subtotal <span>@total VND</span></div>
+                                <div class="checkout__order__subtotal">Discount <span>@discount VND</span></div>
+                                <div class="checkout__order__total">Total <span>@totalPay VND</span></div>
+                                <button type="submit" class="site-btn">PLACE ORDER</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+}
+@if (string.IsNullOrEmpty(json) && !string.IsNullOrEmpty(jsonCart))
+{
+    <!-- Checkout Section Begin -->
+    <section class="checkout spad">
+        <div class="container">
+            <div class="checkout__form">
+                <h4>Billing Details </h4>
+                <p style="color:Tomato;">@Model.message</p>
+                @if (!string.IsNullOrEmpty(erorr))
+                {
+                    <p style="color:Tomato;">@erorr</p>
+                }
+                <form method="post">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="checkout__input">
+                                        <p>Name<span>*</span></p>
+                                        <input type="text" name="fullname">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="checkout__input">
+                                        <p>Address<span>*</span></p>
+                                        <input name="address" type="text" class="checkout__input__add">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="checkout__input">
+                                        <p>Payment type<span>*</span></p>
+                                        <select name="payment" value="" class="label">
+                                            @foreach (var item in Model.payments)
+                                            {
+                                                <option id="user" value="@item.PaymentId">@item.PaymentName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="checkout__input">
+                                        <p>Phone<span>*</span></p>
+                                        <input type="text" name="phone">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="checkout__input">
+                                        <p>Email<span>*</span></p>
+                                        <input type="text" name="email">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="checkout__order">
+                                <h4>Your Order</h4>
+                                <div class="checkout__order__products">Products <span>Total</span></div>
+                                <ul>
+                                    @{
+                                        foreach (var item in Model.cart)
+                                        {
+                                            var response = await _client.GetAsync(ApiUri + $"product/get-product-id/{item.Value.ProductId}");
+                                            var strData = await response.Content.ReadAsStringAsync();
+                                            var product = System.Text.Json.JsonSerializer.Deserialize<Product>(strData, option);
+
+                                            subTotal = item.Value.Quantity * product.Price;
+                                            total = total + subTotal;
+
+                                            <li>@product.ProductName<span>@subTotal VND</span></li>
+                                        }
+                                        discount = @Model.coupon.DiscountPercent * total / 100;
+                                        totalPay = total - discount;
+
+                                    }
+                                </ul>
+                                <div class="checkout__order__subtotal">Subtotal <span>@total VND</span></div>
+                                <div class="checkout__order__subtotal">Discount <span>@discount VND</span></div>
+                                <div class="checkout__order__total">Total <span>@totalPay VND</span></div>
+                                <button type="submit" class="site-btn">PLACE ORDER</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+}

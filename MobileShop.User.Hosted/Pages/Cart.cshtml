@@ -1,0 +1,200 @@
+﻿@page
+@model MobileShop.User.Hosted.Pages.CartModel
+@using System.Net.Http.Headers
+@using MobileShop.Entity.Models
+@using MobileShop.Shared.Constants
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Cart";
+
+    var _client = new HttpClient();
+    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+    _client.DefaultRequestHeaders.Accept.Add(contentType);
+    var ApiUri = $"{UrlConstant.ApiBaseUrl}/api/";
+    var option = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+    double subTotal = 0;
+    double total = 0;
+
+    var json = HttpContextAccessor.HttpContext!.Session.GetString("_login") ?? string.Empty;
+    var jsonCart = HttpContextAccessor.HttpContext!.Session.GetString("_cart") ?? string.Empty;
+}
+
+<section class="shoping-cart spad">
+            <div class="container">
+        @if (!string.IsNullOrEmpty(json))
+        {
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="shoping__cart__table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="shoping__product">Products</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model.orderDetails)
+                                    {
+                                        var response = await _client.GetAsync(ApiUri + $"product/get-product-id/{item.ProductId}");
+                                        var strData = await response.Content.ReadAsStringAsync();
+                                        var product = System.Text.Json.JsonSerializer.Deserialize<Product>(strData, option);
+
+                                        var response2 = await _client.GetAsync(ApiUri + $"image/get-image-id/{product.ImageId}");
+                                        var strData2 = await response2.Content.ReadAsStringAsync();
+                                        var image = System.Text.Json.JsonSerializer.Deserialize<Image>(strData2, option);
+
+                                        subTotal = item.Quantity * product.Price;
+                                        total = total + subTotal;
+
+                                        <tr>
+                                            <td class="shoping__cart__item">
+                                                <img src="image/@image.ImageLink" alt="">
+                                                <h5 name = "proname">@product.ProductName</h5>
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                @product.Price VND
+                                            </td>
+                                            <td class="shoping__cart__quantity">
+                                                <div class="quantity">
+                                                    <div >
+                                                        @if (item.Quantity > 1)
+                                                        {
+                                                            <a href="Cart?fstore=dequantityitem&idb=@item.OrderId&idp=@item.ProductId" style="color:black; font-size:20px;">-</a>
+                                                        }
+
+                                                        @if (item.Quantity == 1)
+                                                        {
+                                                            <a href="Cart?fstore=removeitem&idb=@item.OrderId&idp=@item.ProductId" style="color:black; font-size:20px;">-</a>
+                                                        }
+                                                        @item.Quantity
+                                                        <a href="Cart?fstore=incquantityitem&idb=@item.OrderId&idp=@item.ProductId" style="color:black; font-size:20px;">+</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="shoping__cart__total">
+                                                @subTotal VND
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                <a href="Cart?fstore=removeitem&idb=@item.OrderId&idp=@item.ProductId" style="color:Tomato;" class="breadcrumb__option">X</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (string.IsNullOrEmpty(json) && !string.IsNullOrEmpty(jsonCart))
+        {
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="shoping__cart__table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="shoping__product">Products</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    foreach (var item in Model.cart)
+                                    {
+                                        var response = await _client.GetAsync(ApiUri + $"product/get-product-id/{item.Value.ProductId}");
+                                        var strData = await response.Content.ReadAsStringAsync();
+                                        var product = System.Text.Json.JsonSerializer.Deserialize<Product>(strData, option);
+
+                                        var response2 = await _client.GetAsync(ApiUri + $"image/get-image-id/{product.ImageId}");
+                                        var strData2 = await response2.Content.ReadAsStringAsync();
+                                        var image = System.Text.Json.JsonSerializer.Deserialize<Image>(strData2, option);
+
+                                        subTotal = item.Value.Quantity * product.Price;
+                                        total = total + subTotal;
+
+                                        <tr>
+                                            <td class="shoping__cart__item">
+                                                <img src="image/@image.ImageLink" alt="">
+                                                <h5 name="proname">@product.ProductName</h5>
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                @product.Price VND
+                                            </td>
+                                            <td class="shoping__cart__quantity">
+                                                <div class="quantity">
+                                                    <div>
+                                                        @if (item.Value.Quantity > 1)
+                                                        {
+                                                            <a href="Cart?fstore=dequantityitem&idp=@item.Value.ProductId" style="color:black; font-size:20px;">-</a>
+                                                        }
+
+                                                        @if (item.Value.Quantity == 1)
+                                                        {
+                                                            <a href="Cart?fstore=removeitem&idp=@item.Value.ProductId" style="color:black; font-size:20px;">-</a>
+                                                        }
+                                                        @item.Value.Quantity
+                                                        <a href="Cart?fstore=incquantityitem&idp=@item.Value.ProductId" style="color:black; font-size:20px;">+</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="shoping__cart__total">
+                                                @subTotal VND
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                <a href="Cart?fstore=removeitem&idp=@item.Value.ProductId" style="color:Tomato;" class="breadcrumb__option">X</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        <form method="post">
+                <div class="row">
+
+                    <div class="col-lg-6">
+                
+                        <div class="shoping__cart__btns">
+                            <a asp-page="/Purchase" class="primary-btn cart-btn">PURCHASE ORDER</a>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="shoping__checkout">
+                            <h5>Cart Total</h5>
+                            <ul>
+                            <li>Total <span>@total VND</span></li>
+                                <li>
+                             <p style="color:Tomato;">@Model.message</p>
+                            <div class="checkout__input">
+                                    <input type="text" name="discountcode" placeholder="Discount code">
+                            </div>
+                                </li>
+                                <li>
+                                <button type="submit" class="primary-btn-checkout">PROCESS TO CHECKOUT</button>
+                                </li>
+                            </ul>
+                       
+                        </div>
+                    </div>
+                </div>
+        </form>
+            </div>
+        </section>
+        <!-- Shoping Cart Section End -->

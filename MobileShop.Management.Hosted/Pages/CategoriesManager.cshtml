@@ -1,0 +1,49 @@
+﻿@page
+@model MobileShop.Management.Hosted.Pages.CategoriesManagerModel
+@{
+    ViewData["Title"] = "Categories manager";
+}
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+
+<section class="breadcrumb-section set-bg" data-setbg="image/breadcrumb.jpg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb__text">
+                    <h2 style="color:MediumSeaGreen;">CATEGORIES MANAGER</h2>
+                    <a asp-page="AddCategory" class="primary-btn">Create Category</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<br>
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Category name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.categories)
+            {
+                if (item.IsDeleted == false)
+                {
+                    <tr>
+                        <td>@item.CategoryName</td>
+
+                        <td>
+                            <a asp-page="UpdateCategory" asp-route-idc="@item.CategoryId" style="color:MediumSeaGreen;">Update</a> |
+                            <a href="CategoriesManager?fstore=delete&idc=@item.CategoryId" style="color:Tomato;">Delete</a>
+                        </td>
+
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

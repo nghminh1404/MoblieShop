@@ -1,0 +1,110 @@
+﻿@page
+@using System.Net.Http.Headers
+@using MobileShop.Shared.Constants
+@using System.Text.Json
+@model IndexModel
+@{
+    
+    ViewData["Title"] = "Home page";
+    var count = 0;
+    var _client = new HttpClient();
+    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+    _client.DefaultRequestHeaders.Accept.Add(contentType);
+    var ApiUri = $"{UrlConstant.ApiBaseUrl}/api/";
+    var option = new JsonSerializerOptions
+     {
+       PropertyNameCaseInsensitive = true,
+      };
+}
+
+<section class="hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-10">
+
+                <div class="hero__item set-bg" data-setbg="image/panner3.png">
+                    <div class="hero__text">
+                        <span>Fstore</span>
+                        <h2>Technology is friend of life<br /></h2>
+                        <p></p>
+                        <a href="/Shop" class="primary-btn-shop">SHOP NOW</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-1"></div>
+        </div>
+    </div>
+</section>
+<!-- Hero Section End -->
+
+<!-- Categories Section Begin -->
+<section class="categories">
+    <div class="container">
+        <div class="row">
+            <div class="categories__slider owl-carousel">
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="image/samsungs22.jpg">
+                        <h5><a class="primary-btn" href="#">Samsung</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="image/Iphone15prm.png">
+                        <h5><a class="primary-btn" href="#">Apple</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="image/samsungs24.jpg">
+                        <h5><a class="primary-btn" href="#">Xiaomi</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="image/samsungzfold5.jpg">
+                        <h5><a class="primary-btn" href="#">Samsung</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="image/432532.png">
+                        <h5><a class="primary-btn" href="#">Apple</a></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Categories Section End -->
+<!-- Featured Section Begin -->
+<section class="featured spad">
+    <div class="container">
+
+        <div class="row featured__filter">
+
+            @foreach (var item in Model.Products)
+            {
+                if (item.Quantity > 0)
+                {
+                    var response3 = await _client.GetAsync(ApiUri + $"image/get-image-id/{item.ImageId}");
+                    var strData3 = await response3.Content.ReadAsStringAsync();
+                    var image = System.Text.Json.JsonSerializer.Deserialize<Image>(strData3, option);
+                    <div class="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
+                        <div class="featured__item">
+                            <div class="featured__item__pic set-bg" data-setbg="image/@image.ImageLink">
+                                <ul class="featured__item__pic__hover">
+                                    <li><a href="Shop?fstore=AddToCart&productid=@item.ProductId"><i class="fa fa-shopping-cart"></i></a></li>
+                                </ul>
+                            </div>
+                            <div class="featured__item__text">
+                                <h6><a href="ProductDetail?idp=@item.ProductId">@item.ProductName</a></h6>
+                                <h5>@item.Price VND</h5>
+                            </div>
+                        </div>
+                    </div>
+                }
+                count++;
+                if (count ==8) break;
+            }
+
+        </div>
+
+    </div>
+</section>

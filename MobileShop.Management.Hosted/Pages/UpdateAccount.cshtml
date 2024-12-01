@@ -1,0 +1,101 @@
+﻿@page
+@model MobileShop.Management.Hosted.Pages.UpdateAccountModel
+@{
+    ViewData["Title"] = "Update account";
+}
+<!-- Page Preloder -->
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <p style="color:Tomato;">@Model.message</p>
+            <h4>Update account</h4>
+            <form method="post">
+                <div class="row">
+                    <div class="col-lg-8 col-md-6">
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <div class="checkout__input">
+                                    <p>Full Name<span>*</span></p>
+                                    <input type="text" name="fullname" value="@Model.account.FullName">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="checkout__input">
+                                    <p>Role<span>*</span></p>
+                                    <select name="role" value="" class="label">
+                                        @if (Model.account.RoleId == 2)
+                                        {
+                                            <option id="user" value="2" selected>Staff</option>
+                                            <option id="user" value="3">User</option>
+                                        }
+                                        else if (Model.account.RoleId == 3)
+                                        {
+                                            <option id="user" value="2">Staff</option>
+                                            <option id="user" value="3" selected>User</option>
+                                        }
+
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <input name="accountid" type="hidden" placeholder="Street Address" class="checkout__input__add" value="@Model.account.AccountId">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Address<span>*</span></p>
+                                    <input name="address" type="text" placeholder="Street Address" class="checkout__input__add" value="@Model.account.Address">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="checkout__input">
+                                    <p>Gender<span>*</span></p>
+                                    <select name="gender" value="" class="label">
+                                        @if (@Model.account.Gender == true)
+                                        {
+                                            <option id="user" value="1" selected>Male</option>
+                                            <option id="user" value="0">Female</option>
+                                        }
+                                        else
+                                        {
+                                            <option id="user" value="0" selected>Female</option>
+                                            <option id="user" value="1">Male</option>
+                                        }
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="checkout__input">
+                                    <p>Date Of Birth<span>*</span></p>
+                                    <input name="dob" type="text" class="checkout__input__add" value="@Model.account.Dob">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Phone<span>*</span></p>
+                                    <input type="text" name="phone" value="@Model.account.Phone">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Email<span>*</span></p>
+                                    <input type="text" name="email" value="@Model.account.Mail">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkout__order">
+                            <button type="submit" class="site-btn" name="submit">UPDATE PROFILE</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

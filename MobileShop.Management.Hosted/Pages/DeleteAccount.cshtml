@@ -1,0 +1,94 @@
+﻿@page
+@model MobileShop.Management.Hosted.Pages.DeleteAccountModel
+@{
+    ViewData["Title"] = "Delete account";
+}
+<!-- Page Preloder -->
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <p style="color:Tomato;">@Model.message</p>
+            <h4>Continue deleting account?</h4>
+            <form method="post">
+                <div class="row">
+                    <div class="col-lg-8 col-md-6">
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <div class="checkout__input">
+                                    <p>Full Name<span>*</span></p>
+                                    <input type="text" readonly name="fullname" value="@Model.account?.FullName">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="checkout__input">
+                                    <p>Role<span>*</span></p>
+
+                                    @if (Model.account is { RoleId: 2 })
+                                    {
+                                        <input type="text" readonly value="Staff">
+                                    }
+                                    else if (Model.account is { RoleId: 3 })
+                                    {
+                                        <input type="text" readonly value="User">
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <input name="accountid" type="hidden" placeholder="Street Address" class="checkout__input__add" value="@Model.account?.AccountId" readonly>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Address<span>*</span></p>
+                                    <input name="address" type="text" placeholder="Street Address" class="checkout__input__add" value="@Model.account?.Address" readonly>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="checkout__input">
+                                    <p>Gender<span>*</span></p>
+
+                                    @if (@Model.account?.Gender == true)
+                                    {
+                                        <input type="text" readonly value="Male">
+                                    }
+                                    else
+                                    {
+                                        <input type="text" readonly value="Female">
+                                    }
+
+
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="checkout__input">
+                                    <p>Date Of Birth<span>*</span></p>
+                                    <input name="dob" type="text" class="checkout__input__add" value="@Model.account?.Dob" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Phone<span>*</span></p>
+                                    <input type="text" name="phone" value="@Model.account?.Phone" readonly>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Email<span>*</span></p>
+                                    <input type="text" name="email" value="@Model.account?.Mail" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkout__order">
+                            <button type="submit" class="site-btn-delete" name="submit">DELETE</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

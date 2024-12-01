@@ -1,0 +1,46 @@
+﻿@page
+@model MobileShop.User.Hosted.Pages.ProductDetailModel
+@{
+    ViewData["Title"] = "Detail";
+}
+<section class="product-details spad">
+    <form method="post">
+        <div class="container">
+            <p style="color:Tomato;">@Model.message</p>
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="product__details__pic">
+                        <div class="product__details__pic__item">
+                            <img class="product__details__pic__item--large"
+                                 src="image/@Model.Image.ImageLink" alt="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <div class="product__details__text">
+                        <h3>@Model.Product.ProductName</h3>
+                        <div class="product__details__rating">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star-half-o"></i>
+                            <span>(25 reviews)</span>
+                        </div> 
+                        <div class="product__details__price">@Model.Product.Price VND</div>
+                        <p>@Model.Product.Description</p>
+                        <div class="product__details__quantity">
+                            <div class="quantity">
+                                <div class="pro-qty">
+                                    <input type="text" min="1" value="1" name="quantity">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="primary-btn-checkout">Add To Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>

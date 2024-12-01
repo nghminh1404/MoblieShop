@@ -1,0 +1,115 @@
+﻿@page
+@model MobileShop.User.Hosted.Pages.PurchaseModel
+@using System.Net.Http.Headers
+@using MobileShop.Entity.Models
+@using MobileShop.Shared.Constants
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Purchase";
+
+    var _client = new HttpClient();
+    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+    _client.DefaultRequestHeaders.Accept.Add(contentType);
+    var ApiUri = $"{UrlConstant.ApiBaseUrl}/api/";
+    var option = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+    Account? account = null;
+    Coupon? coupon = null;
+    var json = HttpContextAccessor.HttpContext!.Session.GetString("_login") ?? string.Empty;
+    var jsonGuest = HttpContextAccessor.HttpContext!.Session.GetString("_guest") ?? string.Empty;
+    if (!string.IsNullOrEmpty(json))
+    {
+        account = JsonConvert.DeserializeObject<Account>(json);
+
+    }
+    else
+    {
+        if (!string.IsNullOrEmpty(jsonGuest))
+        {
+            account = JsonConvert.DeserializeObject<Account>(jsonGuest);
+
+        }
+    }
+}
+
+<!-- Checkout Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <h4>Purchase Order</h4>
+            @if (!string.IsNullOrEmpty(jsonGuest) && string.IsNullOrEmpty(json))
+            {
+                <p style="color:Tomato;">Please, complete the current order, before creating a new other order</p>
+
+            }
+            <div class="row">
+                @foreach (var item in Model.orders)
+                {
+                    double subTotal = 0;
+                    double total = 0;
+                    double discount = 0;
+                    double amount = 0;
+
+                    var response2 = await _client.GetAsync(ApiUri + $"coupon/get-all-coupon-id/{item.CouponId}");
+                    var strData2 = await response2.Content.ReadAsStringAsync();
+                    coupon = System.Text.Json.JsonSerializer.Deserialize<Coupon>(strData2, option);
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="checkout__order">
+                            @if (item.ShippingDate.ToString().Equals(string.Empty))
+                            {
+                                <h4 style="color:Tomato;">The store is processing</h4>
+                            }
+                            else
+                            {
+                                <h4 style="color:DodgerBlue;">Order is being shipped</h4>
+                            }
+                            @if (item.PaymentId == 1)
+                            {
+                                <div style="color:DodgerBlue;">(Completly payment)</div>
+                            }
+                            @{
+                                //get list cart by billid and customer id
+                                var response = await _client.GetAsync(ApiUri + $"orderdetail/get-orderdetails-OrderID/{item.OrderId}");
+                                var strData = await response.Content.ReadAsStringAsync();
+                                var carts = System.Text.Json.JsonSerializer.Deserialize<List<OrderDetail>>(strData, option);
+
+                            }
+                            <div class="checkout__order__products">Products <span>Total</span></div>
+                            <ul>
+                                @{
+
+                                    foreach (var c in carts)
+                                    {
+                                        var response3 = await _client.GetAsync(ApiUri + $"product/get-product-id/{c.ProductId}");
+                                        var strData3 = await response3.Content.ReadAsStringAsync();
+                                        var product = System.Text.Json.JsonSerializer.Deserialize<Product>(strData3, option);
+
+                                        subTotal = c.Quantity * product.Price;
+                                        total += subTotal;
+
+                                        <li>@product.ProductName<span>@subTotal VND</span></li>
+                                    }
+                                    discount = coupon.DiscountPercent * total / 100;
+                                    amount = total - discount;
+                                }
+                            </ul>
+                            <div class="checkout__order__total">Total <span>@total VND</span></div>
+                            <div class="checkout__order__total">Discount <span>@discount VND</span></div>
+                            <div class="checkout__order__total">Total payment <span>@amount VND</span></div>
+                            @if (!item.ShippingDate.ToString().Equals(string.Empty))
+                            {
+                                <a href="/Purchase?fstore=Confirm&bid=@item.OrderId" class="site-btn">CONFIRM</a>
+                            }
+
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</section>
+

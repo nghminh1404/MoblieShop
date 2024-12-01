@@ -1,0 +1,185 @@
+﻿@using System.Net.Http.Headers
+@using MobileShop.Entity.DTOs.CartDTO
+@using MobileShop.Shared.Constants
+@using System.Text.Json
+@{
+    var _client = new HttpClient();
+    var contentType = new MediaTypeWithQualityHeaderValue("application/json");
+    _client.DefaultRequestHeaders.Accept.Add(contentType);
+    var ApiUri = $"{UrlConstant.ApiBaseUrl}/api/";
+    var option = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+    int quantities = 0;
+    var json = HttpContextAccessor.HttpContext!.Session.GetString("_login") ?? string.Empty;
+    var jsonCart = HttpContextAccessor.HttpContext!.Session.GetString("_cart") ?? string.Empty;
+
+
+    Account? account = null;
+
+    if (!string.IsNullOrEmpty(json))
+    {
+        try
+        {
+            account = JsonConvert.DeserializeObject<Account>(json);
+            var response = await _client.GetAsync(ApiUri + $"orderdetail/get-orderdetails-customerid/{account.AccountId}");
+            var strData = await response.Content.ReadAsStringAsync();
+            var orderDetails = System.Text.Json.JsonSerializer.Deserialize<List<OrderDetail>>(strData, option);
+
+            foreach (var o in orderDetails)
+            {
+                quantities += o.Quantity;
+            }
+        }
+        catch (Exception e)
+        {
+            quantities = 0;
+        }
+    }
+    else
+    {
+        if (!string.IsNullOrEmpty(jsonCart))
+        {
+            var cart = JsonConvert.DeserializeObject<Dictionary<int, Cart>>(jsonCart);
+            foreach (var c in cart)
+            {
+                quantities = quantities + c.Value.Quantity;
+            }
+        }
+        else
+        {
+            quantities = 0;
+        }
+    }
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Fstore</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/font-awesome.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/elegant-icons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/nice-select.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/jquery-ui.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/slicknav.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+
+</head>
+<body> 
+    <header class="header">
+        <div class="header__top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="header__top__left">
+                            <ul>
+                                <li><i class="fa fa-envelope"></i>sstore1403@gmail.com</li>
+                                @if (!json.Equals(string.Empty))
+                                {
+                                    <li>Wellcome back @account.FullName</li>
+
+                                }
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="header__top__right">
+                            <div class="header__top__right__social">
+                                <a href="https://www.facebook.com/dangquocsinh2001"><i class="fa fa-facebook"></i></a>
+                                <a href="#"><i class="fa fa-twitter"></i></a>
+                                <a href="#"><i class="fa fa-linkedin"></i></a>
+                                <a href="#"><i class="fa fa-pinterest-p"></i></a>
+                            </div>
+                            @if (json.Equals(string.Empty))
+                            {
+                                <div class="header__top__right__auth">
+                                    <a asp-page="/Login"><i class="fa fa-user"></i>Login</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="header__top__right__language">
+
+                                    <div>
+                                        <i class="fa fa-user"></i>
+                                        <div></div>
+                                    </div>
+
+                                    <span class="arrow_carrot-down"></span>
+                                    <ul>
+
+                                        <li><a asp-page="Logout">Logout</a></li>
+
+                                        <li><a asp-page="/Profile">Profile</a></li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                </div>
+                <div class="col-lg-6">
+                    <nav class="header__menu">
+                        <ul>
+                            <li><a asp-page="/Index">Home</a></li>
+                            <li><a asp-page="/Shop">Shop</a></li>
+                            <li><a asp-page="/Purchase">Purchase</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3">
+                    <div class="header__cart">
+                        <ul>
+                            @if (quantities != 0)
+                            {
+                                <li><a href="/Cart"><i class="fa fa-shopping-bag"></i><span>@quantities</span></a></li>
+                            }
+                            else
+                            {
+                                <li><a href="/Cart"><i class="fa fa-shopping-bag"></i></a></li>
+                            }
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="humberger__open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.nice-select.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery.slicknav.js"></script>
+    <script src="js/mixitup.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

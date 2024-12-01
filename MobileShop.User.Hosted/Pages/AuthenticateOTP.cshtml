@@ -1,0 +1,40 @@
+﻿@page
+@model MobileShop.User.Hosted.Pages.AuthenticateOTPModel
+@{
+    ViewData["Title"] = "Register";
+
+}
+<!-- Page Preloder -->
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <p style="color:Tomato;">@Model.message</p>
+            <h4>Check your mail!</h4>
+            <form method="post">
+                <div class="row">
+                    <div class="col-lg-2 col-md-3">
+                    </div>
+                    <div class="col-lg-8 col-md-6">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="checkout__input">
+                                    <p>OTP<span>*</span></p>
+                                    <input type="text" name="otp">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="checkout__order">
+                            <button type="submit" class="site-btn" name="submit">SUBMIT</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
