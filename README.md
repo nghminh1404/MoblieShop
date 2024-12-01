@@ -2,12 +2,11 @@ We are a group of students from FPT University Hanoi
 This web app is a project in the subject SWP391
 
 Member:
-- Nguyễn Hữu Quyết - quyetnhhe150167 (Leader)
-- Nguyễn Khắc Tài - tainkhe150664
-- Đặng Quốc Sinh - sinhdqhe150849
-- Nguyễn Ngọc Tân - tannnhe151074
-- Vương Tuấn Nghĩa - nghiavthe160378
-- ------------------------------------------
+- Nguyễn Hoàng Minh - minhnhhe163937 (Leader)
+- Nguyễn Văn Rin - Rinnvhe153192
+- Đinh Việt Chung - Chungdvhe170067
+- Trần Quang Đam - Damtqhe163955
+------------------------------------------
 Core function:
 1. Admin site:
 - CRUD Accounts 
